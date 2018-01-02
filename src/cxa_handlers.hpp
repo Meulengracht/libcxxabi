@@ -14,7 +14,7 @@
 #define _CXA_HANDLERS_H
 
 #include <__cxxabi_config.h>
-
+#define _LIBCPP_BUILDING_LIBRARY
 #include <exception>
 
 namespace std

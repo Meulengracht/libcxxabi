@@ -10,7 +10,6 @@
 //===----------------------------------------------------------------------===//
 
 #define _LIBCPP_BUILDING_NEW
-#define _LIBCPP_BUILDING_LIBRARY
 #include "__cxxabi_config.h"
 #include <new>
 #include <cstdlib>
@@ -148,6 +147,8 @@ operator new(std::size_t size, std::align_val_t alignment) _THROW_BAD_ALLOC
     void* p;
 #if defined(_LIBCPP_WIN32API)
     while ((p = _aligned_malloc(size, static_cast<size_t>(alignment))) == nullptr)
+#elif defined(MOLLENOS)
+    while ((p = std::aligned_alloc(static_cast<size_t>(alignment), size)) == nullptr)
 #else
     while (::posix_memalign(&p, static_cast<size_t>(alignment), size) != 0)
 #endif

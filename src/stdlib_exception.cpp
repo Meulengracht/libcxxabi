@@ -6,8 +6,6 @@
 // Source Licenses. See LICENSE.TXT for details.
 //
 //===----------------------------------------------------------------------===//
-
-#define _LIBCPP_BUILDING_LIBRARY
 #define _LIBCPP_BUILDING_NEW
 #include <new>
 #include <exception>
