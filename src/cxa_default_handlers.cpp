@@ -21,6 +21,7 @@
 #include "cxa_exception.hpp"
 #include "private_typeinfo.h"
 
+#if !defined(LIBCXXABI_SILENT_TERMINATE)
 static const char* cause = "uncaught";
 
 __attribute__((noreturn))
@@ -86,7 +87,6 @@ static void demangling_unexpected_handler()
     std::terminate();
 }
 
-#if !defined(LIBCXXABI_SILENT_TERMINATE)
 static std::terminate_handler default_terminate_handler = demangling_terminate_handler;
 static std::terminate_handler default_unexpected_handler = demangling_unexpected_handler;
 #else
