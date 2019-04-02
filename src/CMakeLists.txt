@@ -26,13 +26,16 @@ endif()
 
 if (MOLLENOS)
   if (LIBCXXABI_VALI_BOOTSTRAP)
-    list(APPEND LIBCXXABI_SOURCES bootstrap/debug.cpp)
-    list(APPEND LIBCXXABI_SOURCES bootstrap/exception.cpp)
-    list(APPEND LIBCXXABI_SOURCES bootstrap/exception_pointer.cpp)
-    list(APPEND LIBCXXABI_SOURCES bootstrap/memory.cpp)
-    list(APPEND LIBCXXABI_SOURCES bootstrap/stdexcept_default.cpp)
+    set(LIBCXXABI_SOURCES_SHARED 
+      bootstrap/debug.cpp
+      bootstrap/exception.cpp
+      bootstrap/exception_pointer.cpp
+      bootstrap/memory.cpp
+      bootstrap/stdexcept_default.cpp
+      main.cpp)
+  else()
+    set(LIBCXXABI_SOURCES_SHARED main.cpp)
   endif()
-  list(APPEND LIBCXXABI_SOURCES main.cpp)
 endif()
 
 if (LIBCXXABI_ENABLE_EXCEPTIONS)
@@ -191,6 +194,7 @@ if(LIBCXXABI_HERMETIC_STATIC_LIBRARY)
       _LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS
       _LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS
     FLAGS ${CXXABI_STATIC_OBJECTS_FLAGS})
+  list(APPEND LIBCXXABI_SOURCES ${LIBCXXABI_SOURCES_SHARED})
   cxxabi_object_library(cxxabi_shared_objects)
   set(cxxabi_static_sources $<TARGET_OBJECTS:cxxabi_static_objects>)
   set(cxxabi_shared_sources $<TARGET_OBJECTS:cxxabi_shared_objects>)
