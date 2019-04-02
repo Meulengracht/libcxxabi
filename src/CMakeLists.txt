@@ -24,6 +24,17 @@ if (LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS)
   list(APPEND LIBCXXABI_SOURCES stdlib_new_delete.cpp)
 endif()
 
+if (MOLLENOS)
+  if (LIBCXXABI_VALI_BOOTSTRAP)
+    list(APPEND LIBCXXABI_SOURCES bootstrap/debug.cpp)
+    list(APPEND LIBCXXABI_SOURCES bootstrap/exception.cpp)
+    list(APPEND LIBCXXABI_SOURCES bootstrap/exception_pointer.cpp)
+    list(APPEND LIBCXXABI_SOURCES bootstrap/memory.cpp)
+    list(APPEND LIBCXXABI_SOURCES bootstrap/stdexcept_default.cpp)
+  endif()
+  list(APPEND LIBCXXABI_SOURCES main.cpp)
+endif()
+
 if (LIBCXXABI_ENABLE_EXCEPTIONS)
   list(APPEND LIBCXXABI_SOURCES cxa_exception.cpp)
   list(APPEND LIBCXXABI_SOURCES cxa_personality.cpp)
@@ -82,9 +93,15 @@ if (MINGW)
   # MINGW_LIBRARIES is defined in config-ix.cmake
   list(APPEND LIBCXXABI_LIBRARIES ${MINGW_LIBRARIES})
 endif()
+if (MOLLENOS)
+  # VALI_LIBRARIES is defined in config-ix.cmake
+  list(APPEND LIBCXXABI_LIBRARIES ${VALI_LIBRARIES})
+endif()
 
 # Setup flags.
-add_link_flags_if_supported(-nodefaultlibs)
+if (NOT MOLLENOS)
+  add_link_flags_if_supported(-nodefaultlibs)
+endif()
 
 set(LIBCXXABI_SHARED_LINK_FLAGS)
 
