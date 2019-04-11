@@ -264,13 +264,6 @@ if (LIBCXXABI_HAS_NOSTDINCXX_FLAG AND NOT MOLLENOS)
   string(REPLACE "-stdlib=libstdc++" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
-<<<<<<< HEAD
-=======
-if (LIBCXXABI_USE_COMPILER_RT AND NOT MOLLENOS)
-  list(APPEND LIBCXXABI_LINK_FLAGS "-rtlib=compiler-rt")
-endif()
-
->>>>>>> 6a05d56995e04fe8acefaab1af0e838b250b27a9
 # Let the library headers know they are currently being used to build the
 # library.
 add_definitions(-D_LIBCXXABI_BUILDING_LIBRARY)

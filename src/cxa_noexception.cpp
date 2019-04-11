@@ -18,7 +18,6 @@
 #include "cxa_exception.hpp"
 #include "cxa_handlers.hpp"
 
-#if defined(_LIBCXXABI_NO_EXCEPTIONS)
 namespace __cxxabiv1 {
 
 extern "C" {
@@ -58,4 +57,3 @@ void     __setExceptionClass  (      _Unwind_Exception*, uint64_t) {}
 bool     __isOurExceptionClass(const _Unwind_Exception*)           { return false; }
 
 }  // abi
-#endif

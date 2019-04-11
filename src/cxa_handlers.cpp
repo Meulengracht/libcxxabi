@@ -8,6 +8,7 @@
 // This file implements the functionality associated with the terminate_handler,
 //   unexpected_handler, and new_handler.
 //===----------------------------------------------------------------------===//
+
 #include <stdexcept>
 #include <new>
 #include <exception>
