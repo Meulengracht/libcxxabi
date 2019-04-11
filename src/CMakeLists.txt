@@ -24,6 +24,20 @@ if (LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS)
   list(APPEND LIBCXXABI_SOURCES stdlib_new_delete.cpp)
 endif()
 
+if (MOLLENOS)
+  if (LIBCXXABI_VALI_BOOTSTRAP)
+    set(LIBCXXABI_SOURCES_SHARED 
+      bootstrap/debug.cpp
+      bootstrap/exception.cpp
+      bootstrap/exception_pointer.cpp
+      bootstrap/memory.cpp
+      bootstrap/stdexcept_default.cpp
+      main.cpp)
+  else()
+    set(LIBCXXABI_SOURCES_SHARED main.cpp)
+  endif()
+endif()
+
 if (LIBCXXABI_ENABLE_EXCEPTIONS)
   list(APPEND LIBCXXABI_SOURCES cxa_exception.cpp)
   list(APPEND LIBCXXABI_SOURCES cxa_personality.cpp)
@@ -82,9 +96,15 @@ if (MINGW)
   # MINGW_LIBRARIES is defined in config-ix.cmake
   list(APPEND LIBCXXABI_LIBRARIES ${MINGW_LIBRARIES})
 endif()
+if (MOLLENOS)
+  # VALI_LIBRARIES is defined in config-ix.cmake
+  list(APPEND LIBCXXABI_LIBRARIES ${VALI_LIBRARIES})
+endif()
 
 # Setup flags.
-add_link_flags_if_supported(-nodefaultlibs)
+if (NOT MOLLENOS)
+  add_link_flags_if_supported(-nodefaultlibs)
+endif()
 
 set(LIBCXXABI_SHARED_LINK_FLAGS)
 
@@ -137,6 +157,51 @@ split_list(LIBCXXABI_SHARED_LINK_FLAGS)
 # on symbols defined in libc++.so which has not yet been built.
 if (LLVM_ENABLE_MODULES)
   string(REPLACE "-Wl,-z,defs" "" CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS}")
+endif()
+
+macro(cxxabi_object_library name)
+  cmake_parse_arguments(ARGS "" "" "DEFINES;FLAGS" ${ARGN})
+
+  # Add a object library that contains the compiled source files.
+  add_library(${name} OBJECT ${LIBCXXABI_SOURCES} ${LIBCXXABI_HEADERS})
+  set_target_properties(${name}
+                        PROPERTIES
+                          CXX_EXTENSIONS
+                            OFF
+                          CXX_STANDARD
+                            11
+                          CXX_STANDARD_REQUIRED
+                            ON
+                          COMPILE_FLAGS
+                            "${LIBCXXABI_COMPILE_FLAGS}"
+                          POSITION_INDEPENDENT_CODE
+                            ON)
+
+  if(ARGS_DEFINES)
+    target_compile_definitions(${name} PRIVATE ${ARGS_DEFINES})
+  endif()
+
+  if(ARGS_FLAGS)
+    target_compile_options(${name} PRIVATE ${ARGS_FLAGS})
+  endif()
+endmacro()
+
+if(LIBCXXABI_HERMETIC_STATIC_LIBRARY)
+  append_flags_if_supported(CXXABI_STATIC_OBJECTS_FLAGS -fvisibility=hidden)
+  append_flags_if_supported(CXXABI_STATIC_OBJECTS_FLAGS -fvisibility-global-new-delete-hidden)
+  cxxabi_object_library(cxxabi_static_objects
+    DEFINES
+      _LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS
+      _LIBCPP_DISABLE_VISIBILITY_ANNOTATIONS
+    FLAGS ${CXXABI_STATIC_OBJECTS_FLAGS})
+  list(APPEND LIBCXXABI_SOURCES ${LIBCXXABI_SOURCES_SHARED})
+  cxxabi_object_library(cxxabi_shared_objects)
+  set(cxxabi_static_sources $<TARGET_OBJECTS:cxxabi_static_objects>)
+  set(cxxabi_shared_sources $<TARGET_OBJECTS:cxxabi_shared_objects>)
+else()
+  cxxabi_object_library(cxxabi_objects)
+  set(cxxabi_static_sources $<TARGET_OBJECTS:cxxabi_objects>)
+  set(cxxabi_shared_sources $<TARGET_OBJECTS:cxxabi_objects>)
 endif()
 
 # Build the shared library.

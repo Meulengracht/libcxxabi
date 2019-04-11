@@ -115,6 +115,7 @@ else()
     "${LLVM_MAIN_SRC_DIR}/projects/libcxx"
     "${LLVM_MAIN_SRC_DIR}/runtimes/libcxx"
     "${LLVM_MAIN_SRC_DIR}/../libcxx"
+    "../libcxx"
     )
 endif()
 
@@ -256,19 +257,32 @@ endif()
 # Configure compiler. Must happen after setting the target flags.
 include(config-ix)
 
-if (LIBCXXABI_HAS_NOSTDINCXX_FLAG)
+if (LIBCXXABI_HAS_NOSTDINCXX_FLAG AND NOT MOLLENOS)
   list(APPEND LIBCXXABI_COMPILE_FLAGS -nostdinc++)
   # Remove -stdlib flags to prevent them from causing an unused flag warning.
   string(REPLACE "-stdlib=libc++" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
   string(REPLACE "-stdlib=libstdc++" "" CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS}")
 endif()
 
+<<<<<<< HEAD
+=======
+if (LIBCXXABI_USE_COMPILER_RT AND NOT MOLLENOS)
+  list(APPEND LIBCXXABI_LINK_FLAGS "-rtlib=compiler-rt")
+endif()
+
+>>>>>>> 6a05d56995e04fe8acefaab1af0e838b250b27a9
 # Let the library headers know they are currently being used to build the
 # library.
 add_definitions(-D_LIBCXXABI_BUILDING_LIBRARY)
 
+if (MOLLENOS AND LIBCXXABI_VALI_BOOTSTRAP)
+  add_definitions(-DLIBCXXABI_VALI_BOOTSTRAP)
+  add_definitions(-D_LIBCPP_BUILDING_LIBRARY)
+  add_compile_flags(-static)
+endif()
+
 # Disable DLL annotations on Windows for static builds.
-if (WIN32 AND LIBCXXABI_ENABLE_STATIC AND NOT LIBCXXABI_ENABLE_SHARED)
+if ((WIN32 OR MOLLENOS) AND LIBCXXABI_ENABLE_STATIC AND NOT LIBCXXABI_ENABLE_SHARED)
   add_definitions(-D_LIBCXXABI_DISABLE_VISIBILITY_ANNOTATIONS)
 endif()
 

@@ -27,6 +27,10 @@ if (LIBCXXABI_HAS_NODEFAULTLIBS_FLAG)
   elseif (LIBCXXABI_HAS_GCC_S_LIB)
     list(APPEND CMAKE_REQUIRED_LIBRARIES gcc_s)
   endif ()
+  if (MOLLENOS)
+    set(VALI_LIBRARIES crt.lib ddk.lib compiler-rt.lib c.lib m.lib)
+    list(APPEND CMAKE_REQUIRED_LIBRARIES ${VALI_LIBRARIES})
+  endif()
   if (MINGW)
     # Mingw64 requires quite a few "C" runtime libraries in order for basic
     # programs to link successfully with -nodefaultlibs.
