@@ -33,6 +33,9 @@ if (MOLLENOS)
       bootstrap/memory.cpp
       bootstrap/stdexcept_default.cpp
       main.cpp)
+      if (NOT LIBCXXABI_ENABLE_NEW_DELETE_DEFINITIONS)
+        list(APPEND LIBCXXABI_SOURCES_SHARED stdlib_new_delete.cpp)
+      endif()
   else()
     set(LIBCXXABI_SOURCES_SHARED main.cpp)
   endif()
@@ -251,10 +254,18 @@ endif()
 add_custom_target(cxxabi DEPENDS ${LIBCXXABI_BUILD_TARGETS})
 
 if (LIBCXXABI_INSTALL_LIBRARY)
+  set(export_to_llvmexports)
+  if (${LLVM_BOOTSTRAP_RUNTIME})
+    set(export_to_llvmexports EXPORT LLVMExports)
+  endif()
   install(TARGETS ${LIBCXXABI_INSTALL_TARGETS}
+    ${export_to_llvmexports}
     LIBRARY DESTINATION ${LIBCXXABI_INSTALL_PREFIX}lib${LIBCXXABI_LIBDIR_SUFFIX} COMPONENT cxxabi
     ARCHIVE DESTINATION ${LIBCXXABI_INSTALL_PREFIX}lib${LIBCXXABI_LIBDIR_SUFFIX} COMPONENT cxxabi
     )
+  if (${LLVM_BOOTSTRAP_RUNTIME})
+    set_property(GLOBAL APPEND PROPERTY LLVM_EXPORTS ${LIBUNWIND_INSTALL_TARGETS})
+  endif()
 endif()
 
 if (NOT CMAKE_CONFIGURATION_TYPES AND LIBCXXABI_INSTALL_LIBRARY)
